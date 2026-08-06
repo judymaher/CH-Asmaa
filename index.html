@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CH. Asmaa</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+        }
+
+        button.add-btn {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button.add-btn:hover {
+            background-color: #45a049;
+        }
+
+        .word-list {
+            list-style: none;
+        }
+
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .word-text {
+            font-size: 18px;
+            color: #2c3e50;
+            word-break: break-word;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 6px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .btn-listen:hover {
+            background: #e8f5e9;
+        }
+
+        .btn-delete:hover {
+            background: #ffebee;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Science Vocab 🔊</h2>
+    
+    <div class="input-group">
+        <input type="text" id="wordInput" placeholder="Type a word or phrase...">
+        <button class="add-btn" onclick="addWord()">Save</button>
+    </div>
+
+    <ul class="word-list" id="wordList"></ul>
+</div>
+
+<script>
+    let words = JSON.parse(localStorage.getItem('savedWords')) || [];
+
+    function saveToStorage() {
+        localStorage.setItem('savedWords', JSON.stringify(words));
+    }
+
+    function renderWords() {
+        const listElement = document.getElementById('wordList');
+        listElement.innerHTML = '';
+
+        words.forEach((word, index) => {
+            const li = document.createElement('li');
+            li.className = 'word-item';
+            
+            li.innerHTML = `
+                <span class="word-text">${word}</span>
+                <div class="actions">
+                    <button class="btn-action btn-listen" onclick="speakWord('${word}')" title="Listen">🔊</button>
+                    <button class="btn-action btn-delete" onclick="deleteWord(${index})" title="Delete">🗑️</button>
+                </div>
+            `;
+            
+            listElement.appendChild(li);
+        });
+    }
+
+    function addWord() {
+        const input = document.getElementById('wordInput');
+        const text = input.value.trim();
+
+        if (text !== '') {
+            words.push(text);
+            saveToStorage();
+            renderWords();
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    function deleteWord(index) {
+        words.splice(index, 1);
+        saveToStorage();
+        renderWords();
+    }
+
+    function speakWord(text) {
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Detects language automatically (English / Arabic)
+        const isArabic = /[\u0600-\u06FF]/.test(text);
+        utterance.lang = isArabic ? 'ar-SA' : 'en-US';
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    document.getElementById('wordInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            addWord();
+        }ظ
+    });
+
+    renderWords();
+</script>
+
+</body>
+</html>
